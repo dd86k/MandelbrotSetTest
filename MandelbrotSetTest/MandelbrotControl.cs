@@ -13,6 +13,11 @@ namespace MandelbrotSetTest
 {
     class MandelbrotControl : Control
     {
+        public MandelbrotControl()
+        {
+            BackColor = Color.Black;
+        }
+
         public void Render()
         {
             Invalidate();
@@ -33,9 +38,9 @@ namespace MandelbrotSetTest
             
             double w = Width;
             double h = Height;
-            Bitmap b = new Bitmap((int)w, (int)h, PixelFormat.Format24bppRgb);
+            Bitmap b = new Bitmap((int)w, (int)h);
             // Maximum iterations
-            const int m = 100;
+            const int m = 50;
             Complex z = new Complex();
             Complex c = new Complex();
             

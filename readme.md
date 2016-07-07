@@ -1,6 +1,9 @@
 # MandelbrotSetTest
 
+![Example](http://guitarxhero.github.com/imgs/mbst.png)
+
 Rendering a Mandelbrot Set in C#.
 
-The interesting code is located in MandelbrotControl.cs in the OnPaint event. It uses the CLR's renderer (e.g. GDI for Windows).
+It is rather slow, and faster methods are being investigated.
 
+Then, navigation is my next goal.
