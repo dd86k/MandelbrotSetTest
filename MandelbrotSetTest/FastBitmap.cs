@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 
 //TODO: IDisposable
@@ -15,14 +16,11 @@ namespace MandelbrotSetTest
     /// Original post:
     /// http://www.vcskicks.com/fast-image-processing2.php
     /// </remarks>
-    unsafe public class FastBitmap
+    unsafe public class FastBitmap : IDisposable
     {
         struct PixelData
         {
-            public byte Alpha;
-            public byte Red;
-            public byte Blue;
-            public byte Green;
+            public byte Alpha, Red, Green, Blue;
 
             public override string ToString()
             {
@@ -43,12 +41,11 @@ namespace MandelbrotSetTest
         public FastBitmap(Bitmap inputBitmap)
         {
             workingBitmap = inputBitmap;
-            /*
-            bitmapData = null;
-            pixelData = null;
-            pBase = null;
-            width = 0;
-            */
+        }
+
+        public FastBitmap(int width, int height)
+        {
+            workingBitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
         }
 
         /**
@@ -64,7 +61,8 @@ namespace MandelbrotSetTest
                 width = 4 * (width / 4 + 1);
 
             bitmapData =
-                workingBitmap.LockBits(bounds, ImageLockMode.ReadWrite, workingBitmap.PixelFormat);
+                workingBitmap.LockBits(bounds, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+
             pBase = (byte*)bitmapData.Scan0.ToPointer();
         }
 
@@ -77,7 +75,7 @@ namespace MandelbrotSetTest
                                   pixelData->Blue);
         }
 
-        public Color GetPixelNext()
+        public Color GetNextPixel()
         {
             pixelData++;
             return Color.FromArgb(pixelData->Alpha,
@@ -88,22 +86,30 @@ namespace MandelbrotSetTest
 
         public void SetPixel(int x, int y, Color color)
         {
-            PixelData* data = (PixelData*)(pBase + y * width + x * sizeof(PixelData));
+            PixelData* p = (PixelData*)(pBase + y * width + x * sizeof(PixelData));
             // PixelFormat.Format32bppArgb
-            data->Alpha = color.A;
-            data->Red = color.R;
-            data->Green = color.G;
-            data->Blue = color.B;
+            p->Alpha = color.A;
+            p->Red = color.R;
+            p->Green = color.G;
+            p->Blue = color.B;
         }
 
-        public void SetPixel(int x, int y, byte a, byte r, byte b, byte g)
+        public void SetPixel(int x, int y, byte a, byte r, byte g, byte b)
         {
-            PixelData* data = (PixelData*)(pBase + y * width + x * sizeof(PixelData));
-            // PixelFormat.Format32bppArgb
-            data->Alpha = a;
-            data->Red = r;
-            data->Green = g;
-            data->Blue = b;
+            PixelData* p = (PixelData*)(pBase + y * width + x * sizeof(PixelData));
+            p->Alpha = a;
+            p->Red = r;
+            p->Green = g;
+            p->Blue = b;
+        }
+
+        public void SetPixel(int x, int y, byte r, byte g, byte b)
+        {
+            PixelData* p = (PixelData*)(pBase + y * width + x * sizeof(PixelData));
+            p->Alpha = 0xff;
+            p->Red = r;
+            p->Green = g;
+            p->Blue = b;
         }
 
         public void UnlockImage()
@@ -113,16 +119,17 @@ namespace MandelbrotSetTest
             pBase = null;
         }
 
+        public void Dispose()
+        {
+            workingBitmap.Dispose();
+            workingBitmap = null;
+            GC.Collect();
+        }
+
         /**
          * Public properties
          */
 
-        public Bitmap Image
-        {
-            get
-            {
-                return workingBitmap;
-            }
-        }
+        public Image Image => workingBitmap;
     }
 }

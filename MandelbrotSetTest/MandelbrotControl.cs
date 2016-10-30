@@ -3,6 +3,9 @@ using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace MandelbrotSetTest
 {
@@ -20,26 +23,25 @@ namespace MandelbrotSetTest
 	cy0 = (double)my0 * scaleY + cy0;
 */
 
-    class MandelbrotControl : Control
+    unsafe class MandelbrotControl : Control
     {
         public MandelbrotControl()
         {
             BackColor = Color.Black;
-            SetStyle(ControlStyles.UserPaint |
+            sw = new Stopwatch();
+            /*SetStyle(ControlStyles.UserPaint |
                      ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint, true);
+                     ControlStyles.AllPaintingInWmPaint, true);*/
         }
 
-        public double CX0 = -2.0;
-        public double CX1 = 3.0;
-        public double CY0 = -1.0;
-        public double CY1 = 2.0;
+        const double CX0 = -2.0, CX1 = 3.0, CY0 = -1.0, CY1 = 2.0;
 
         public void Render()
         {
             Invalidate();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Color MapColor(double t)
         {
             double t2 = 1.0 - t;
@@ -51,29 +53,36 @@ namespace MandelbrotSetTest
 
         protected unsafe override void OnPaint(PaintEventArgs e)
         {
-            SuspendLayout();
-            
-            double w = Width;
-            double h = Height;
-            Bitmap b = new Bitmap((int)w, (int)h);
-            // Maximum iterations
-            const int m = 30;
-            Complex z = new Complex();
-            Complex c = new Complex();
+            //SuspendLayout();
 
-            FastBitmap f = new FastBitmap(b); // Well, at least faster than Bitmap
+            e.Graphics.DrawImageUnscaled(GenerateImage(), 0, 0);
+            
+            //ResumeLayout(true);
+        }
+
+        static Stopwatch sw;
+        public Image GenerateImage()
+        {
+            sw.Restart();
+            double w = Width, h = Height, i;
+
+            // Maximum iterations
+            const int m = 50;
+            Complex z, c;
+
+
+            FastBitmap f = new FastBitmap((int)w, (int)h);
             f.LockImage();
 
-            // Tried to not block the main thread.
-            Invoke(new Action(() =>
+            unchecked
             {
-                for (int y = 0; y < (int)h; ++y)
+                for (int y = 0; y < h; ++y)
                 {
-                    for (int x = 0; x < w; x++)
+                    for (int x = 0; x < w; ++x)
                     {
+                        c = new Complex(CX0 + x / w * CX1, CY0 + y / h * CY1);
                         z = 0;
-                        c = new Complex(CX0 + x / w * CX1, CY0 + y / h * CY1); // 3.0, 2.0
-                        int i = 0;
+                        i = 0;
 
                         while (i < m)
                         {
@@ -85,16 +94,31 @@ namespace MandelbrotSetTest
                             ++i;
                         }
 
-                        f.SetPixel(x, y, MapColor((double)i / m));
+                        double t = i / m, t2 = 1.0 - t;
+
+                        f.SetPixel(x, y,
+                            (byte)(9.0 * t2 * t * t * t * 255.0),
+                            (byte)(15.0 * t2 * t2 * t * t * 255.0),
+                            (byte)(8.5 * t2 * t2 * t2 * t * 255.0)
+                        );
                     }
                 }
-            }));
+            }
+
+            /*Parallel.For(0, (int)h, y =>
+            {
+                Parallel.For(0, (int)w, x =>
+                {
+
+                });
+            });*/
 
             f.UnlockImage();
-            e.Graphics.DrawImageUnscaled(f.Image, 0, 0);
-            f.Image.Dispose();
 
-            ResumeLayout(true);
+            sw.Stop();
+            Console.WriteLine(sw.Elapsed);
+
+            return f.Image;
         }
     }
 }
