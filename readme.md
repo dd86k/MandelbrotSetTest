@@ -1,6 +1,6 @@
 # MandelbrotSetTest
 
-![Example](http://guitarxhero.github.com/imgs/mbst.png)
+![Example](http://dd86k.github.com/imgs/mbst.png)
 
 Rendering a Mandelbrot Set in C#.
 
