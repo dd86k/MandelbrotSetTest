@@ -34,7 +34,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(13, 448);
+            this.button1.Location = new System.Drawing.Point(12, 368);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 0;
@@ -44,12 +44,11 @@
             // 
             // mandelbrotControl1
             // 
-            this.mandelbrotControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mandelbrotControl1.Location = new System.Drawing.Point(13, 12);
+            this.mandelbrotControl1.BackColor = System.Drawing.Color.Black;
+            this.mandelbrotControl1.Enabled = false;
+            this.mandelbrotControl1.Location = new System.Drawing.Point(12, 12);
             this.mandelbrotControl1.Name = "mandelbrotControl1";
-            this.mandelbrotControl1.Size = new System.Drawing.Size(558, 409);
+            this.mandelbrotControl1.Size = new System.Drawing.Size(500, 350);
             this.mandelbrotControl1.TabIndex = 1;
             this.mandelbrotControl1.Text = "mandelbrotControl1";
             // 
@@ -57,7 +56,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(583, 483);
+            this.ClientSize = new System.Drawing.Size(527, 401);
             this.Controls.Add(this.mandelbrotControl1);
             this.Controls.Add(this.button1);
             this.Name = "Form1";

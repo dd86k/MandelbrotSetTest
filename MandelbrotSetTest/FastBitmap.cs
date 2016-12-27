@@ -66,6 +66,13 @@ namespace MandelbrotSetTest
             pBase = (byte*)bitmapData.Scan0.ToPointer();
         }
 
+        public void UnlockImage()
+        {
+            workingBitmap.UnlockBits(bitmapData);
+            bitmapData = null;
+            pBase = null;
+        }
+
         public Color GetPixel(int x, int y)
         {
             pixelData = (PixelData*)(pBase + y * width + x * sizeof(PixelData));
@@ -110,13 +117,6 @@ namespace MandelbrotSetTest
             p->Red = r;
             p->Green = g;
             p->Blue = b;
-        }
-
-        public void UnlockImage()
-        {
-            workingBitmap.UnlockBits(bitmapData);
-            bitmapData = null;
-            pBase = null;
         }
 
         public void Dispose()

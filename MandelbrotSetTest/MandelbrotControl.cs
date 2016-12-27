@@ -23,7 +23,7 @@ namespace MandelbrotSetTest
 	cy0 = (double)my0 * scaleY + cy0;
 */
 
-    unsafe class MandelbrotControl : Control
+    class MandelbrotControl : Control
     {
         public MandelbrotControl()
         {
@@ -51,74 +51,65 @@ namespace MandelbrotSetTest
                                   (int)(8.5 * t2 * t2 * t2 * t * 255.0));
         }
 
+        Image img;
+
         protected unsafe override void OnPaint(PaintEventArgs e)
         {
-            //SuspendLayout();
-
-            e.Graphics.DrawImageUnscaled(GenerateImage(), 0, 0);
-            
-            //ResumeLayout(true);
+            if (Enabled)
+            {
+                GenerateImage();
+                e.Graphics.DrawImageUnscaled(img, 0, 0);
+                img.Dispose();
+            }
         }
 
         static Stopwatch sw;
-        public Image GenerateImage()
+        void GenerateImage()
         {
             sw.Restart();
-            double w = Width, h = Height, i;
+            double w = Width, h = Height;
 
             // Maximum iterations
-            const int m = 50;
-            Complex z, c;
-
+            const int m = 100;
 
             FastBitmap f = new FastBitmap((int)w, (int)h);
             f.LockImage();
 
-            unchecked
+            ParallelOptions o = new ParallelOptions();
+            o.MaxDegreeOfParallelism = Environment.ProcessorCount;
+
+            Parallel.For(0, (int)h, o, y =>
             {
-                for (int y = 0; y < h; ++y)
+                Parallel.For(0, (int)w, o, x =>
                 {
-                    for (int x = 0; x < w; ++x)
+                    Complex c = new Complex(CX0 + x / w * CX1, CY0 + y / h * CY1);
+                    Complex z = 0;
+                    double i = 0;
+
+                    while (i < m)
                     {
-                        c = new Complex(CX0 + x / w * CX1, CY0 + y / h * CY1);
-                        z = 0;
-                        i = 0;
+                        z = Complex.Pow(z, 2) + c;
 
-                        while (i < m)
-                        {
-                            z = Complex.Pow(z, 2) + c;
+                        if (Complex.Abs(z) > 2)
+                            break;
 
-                            if (Complex.Abs(z) > 2)
-                                break;
-
-                            ++i;
-                        }
-
-                        double t = i / m, t2 = 1.0 - t;
-
-                        f.SetPixel(x, y,
-                            (byte)(9.0 * t2 * t * t * t * 255.0),
-                            (byte)(15.0 * t2 * t2 * t * t * 255.0),
-                            (byte)(8.5 * t2 * t2 * t2 * t * 255.0)
-                        );
+                        ++i;
                     }
-                }
-            }
 
-            /*Parallel.For(0, (int)h, y =>
-            {
-                Parallel.For(0, (int)w, x =>
-                {
+                    double t = i / m, t2 = 1.0 - t;
 
-                });
-            });*/
+                    f.SetPixel(x, y, (byte)(9.0 * t2 * t * t * t * 255.0),
+                                     (byte)(15.0 * t2 * t2 * t * t * 255.0),
+                                     (byte)(8.5 * t2 * t2 * t2 * t * 255.0));
+                });                                                       
+            });                      
 
             f.UnlockImage();
 
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
 
-            return f.Image;
+            img = f.Image;
         }
     }
 }
