@@ -9,13 +9,6 @@ namespace MandelbrotSetTest
     /// <summary>
     /// A faster bitmap class.
     /// </summary>
-    /// <remarks>
-    /// Something I took online but heavily modified for my taste and
-    /// to make it actually usable. Like adding some comments, added a property,
-    /// etc.
-    /// Original post:
-    /// http://www.vcskicks.com/fast-image-processing2.php
-    /// </remarks>
     unsafe public class FastBitmap : IDisposable
     {
         struct PixelData
