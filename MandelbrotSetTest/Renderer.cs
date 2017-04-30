@@ -20,9 +20,10 @@ namespace MandelbrotSetTest
             FastBitmap f = new FastBitmap((int)w, (int)h);
             f.LockImage();
 
-            ParallelOptions o = new ParallelOptions();
-            o.MaxDegreeOfParallelism = Environment.ProcessorCount;
-
+            ParallelOptions o = new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            };
             Parallel.For(0, (int)h, o, y =>
             {
                 Parallel.For(0, (int)w, o, x =>
@@ -35,8 +36,7 @@ namespace MandelbrotSetTest
                     {
                         z = Complex.Pow(z, 2) + c;
 
-                        if (Complex.Abs(z) > 2)
-                            break;
+                        if (Complex.Abs(z) > 2) break;
 
                         ++i;
                     }

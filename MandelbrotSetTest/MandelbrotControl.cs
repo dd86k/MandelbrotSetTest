@@ -24,16 +24,13 @@ namespace MandelbrotSetTest
             BackColor = Color.Black;
         }
 
-        public void Render()
-        {
-            Invalidate();
-        }
+        public bool Render = false;
 
         Image img;
 
         protected unsafe override void OnPaint(PaintEventArgs e)
         {
-            if (Enabled)
+            if (Render)
             {
                 img = Renderer.GenerateImage(Width, Height);
                 e.Graphics.DrawImageUnscaled(img, 0, 0);

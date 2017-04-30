@@ -8,12 +8,17 @@ namespace MandelbrotSetTest
         public Form1()
         {
             InitializeComponent();
-            mandelbrotControl1.Enabled = true;
+            mandelbrotControl1.Render = true;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
-            mandelbrotControl1.Render();
+
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
